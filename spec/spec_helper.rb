@@ -5,13 +5,31 @@ ActiveRecord::Base.establish_connection(
   ENV["DATABASE_URL"] || "oracle-enhanced://scenic_oracle_adapter_test:changeme@localhost/xe:1521"
 )
 
+def find_view(name)
+  adapter.views.find { |view| view.name == name && !view.materialized }
+end
+
+def find_mview(name)
+  adapter.views.find { |view| view.name == name && view.materialized }
+end
+
 def view_exists?(name)
-  ActiveRecord::Base.connection.select_value("select count(*) from user_views where view_name = upper('#{name}')") == 1
+  !find_view(name).nil?
+end
+
+def mview_exists?(name)
+  !find_mview(name).nil?
 end
 
 def drop_all_views
   ActiveRecord::Base.connection.select_values("select view_name from user_views").each do |view|
     ActiveRecord::Base.connection.execute("drop view #{view}")
+  end
+end
+
+def drop_all_mviews
+  ActiveRecord::Base.connection.select_values("select mview_name from user_mviews").each do |view|
+    ActiveRecord::Base.connection.execute("drop materialized view #{view}")
   end
 end
 

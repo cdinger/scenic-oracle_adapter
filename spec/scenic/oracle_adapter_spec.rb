@@ -3,6 +3,7 @@ RSpec.describe Scenic::OracleAdapter do
 
   after do
     drop_all_views
+    drop_all_mviews
   end
 
   it "has a version number" do
@@ -40,15 +41,38 @@ RSpec.describe Scenic::OracleAdapter do
     adapter.create_view("blah", "select 1 as a from dual")
     expect(view_exists?("blah")).to be true
     adapter.replace_view("blah", "select 2 as a from dual")
-    view = adapter.views.find { |view| view.name == "blah" }
-    expect(view.definition).to eq("select 2 as a from dual")
+    expect(find_view("blah").definition).to eq("select 2 as a from dual")
   end
 
   it "updates a view" do
     adapter.create_view("blah", "select 1 as a from dual")
     expect(view_exists?("blah")).to be true
     adapter.update_view("blah", "select 1 as a, 2 as b from dual")
-    view = adapter.views.find { |view| view.name == "blah" }
+    expect(find_view("blah").definition).to eq("select 1 as a, 2 as b from dual")
+  end
+
+  it "creates a materialized view" do
+    adapter.create_materialized_view("blah", "select 1 as a from dual")
+    view = find_mview("blah")
+    expect(view.materialized).to be true
+    expect(view.definition).to eq("select 1 as a from dual")
+  end
+
+  it "drops a materialized view" do
+    adapter.create_materialized_view("blah", "select 1 as a from dual")
+    expect(find_mview("blah").materialized).to be true
+    adapter.drop_materialized_view("blah")
+    expect(mview_exists?("blah")).to be false
+  end
+
+  it "updates a materialized view" do
+    adapter.create_materialized_view("blah", "select 1 as a from dual")
+    view = find_mview("blah")
+    expect(view.materialized).to be true
+    expect(view.definition).to eq("select 1 as a from dual")
+    adapter.update_materialized_view("blah", "select 1 as a, 2 as b from dual")
+    view = find_mview("blah")
+    expect(view.materialized).to be true
     expect(view.definition).to eq("select 1 as a, 2 as b from dual")
   end
 end
