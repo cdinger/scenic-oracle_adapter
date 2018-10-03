@@ -1,8 +1,6 @@
-# Scenic::OracleAdapter
+# scenic-oracle_adapter
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/scenic/oracle_adapter`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+An Oracle adapter for Thoughtbot's [scenic](https://github.com/thoughtbot/scenic) rubygem.
 
 ## Installation
 
@@ -16,19 +14,25 @@ And then execute:
 
     $ bundle
 
-Or install it yourself as:
+You'll need to tell the scenic gem to use this adapter in an initializer:
 
-    $ gem install scenic-oracle_adapter
+```ruby
+# config/initializers/scenic.rb
 
-## Usage
-
-TODO: Write usage instructions here
+Scenic.configure do |config|
+  config.database = Scenic::Adapters::Oracle.new
+end
+```
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `bin/test` (or `rspec`) to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+By default, the test suite will attempt to connect to a local XE instance (see `spec/spec_helper.rb` for connection details).
+You can override the database URL by supplying a value to the `DATABASE_URL` environment variable.
+
+If you don't have a test Oracle database available, you can use [oracle-dev-box](https://github.com/cdinger/oracle-dev-box) to
+run an XE instance in Vagrant.
 
 ## Contributing
 
@@ -40,4 +44,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the Scenic::OracleAdapter project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/cdinger/scenic-oracle_adapter/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the scenic-oracle_adapter project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/cdinger/scenic-oracle_adapter/blob/master/CODE_OF_CONDUCT.md).
