@@ -55,7 +55,6 @@ module Scenic
           Scenic::View.new(name: view["name"], definition: view["definition"], materialized: true)
         end
       end
-
     end
   end
 end
