@@ -5,6 +5,5 @@ require "scenic/adapters/oracle"
 
 module Scenic
   module OracleAdapter
-    # Your code goes here...
   end
 end
