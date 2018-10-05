@@ -4,6 +4,7 @@ RSpec.describe Scenic::OracleAdapter do
   after do
     drop_all_views
     drop_all_mviews
+    drop_all_tables
   end
 
   it "has a version number" do
@@ -74,5 +75,17 @@ RSpec.describe Scenic::OracleAdapter do
     view = find_mview("blah")
     expect(view.materialized).to be true
     expect(view.definition).to eq("select 1 as a, 2 as b from dual")
+  end
+
+  it "refreshes a materialized view" do
+    adapter.execute("create table things (id integer, name varchar(50), private char(1))")
+    adapter.execute("insert into things values (1, 'these', 'Y')")
+    adapter.execute("insert into things values (2, 'are', 'N')")
+    adapter.execute("insert into things values (3, 'things', 'Y')")
+    adapter.create_materialized_view("private_things", "select id, name, private from things where private = 'Y'")
+    expect(adapter.connection.select_value("select count(*) from private_things")).to eq(2)
+    adapter.execute("insert into things values (4, 'another', 'Y')")
+    adapter.refresh_materialized_view("private_things")
+    expect(adapter.connection.select_value("select count(*) from private_things")).to eq(3)
   end
 end

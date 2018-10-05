@@ -39,6 +39,15 @@ module Scenic
         execute("drop materialized view #{quote_table_name(name)}")
       end
 
+      def refresh_materialized_view(name)
+        plsql = <<~EOS
+          begin
+            dbms_mview.refresh('#{name}');
+          end;
+        EOS
+        execute(plsql)
+      end
+
       delegate :connection, to: :@connectable
       delegate :select_all, :execute, :quote_table_name, to: :connection
 
