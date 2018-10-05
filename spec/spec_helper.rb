@@ -33,6 +33,12 @@ def drop_all_mviews
   end
 end
 
+def drop_all_tables
+  ActiveRecord::Base.connection.select_values("select table_name from user_tables").each do |table|
+    ActiveRecord::Base.connection.execute("drop table #{table}")
+  end
+end
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
