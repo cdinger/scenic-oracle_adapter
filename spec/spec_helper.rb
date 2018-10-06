@@ -2,7 +2,7 @@ require "bundler/setup"
 require "scenic/oracle_adapter"
 
 ActiveRecord::Base.establish_connection(
-  ENV["DATABASE_URL"] || "oracle-enhanced://scenic_oracle_adapter_test:changeme@localhost/xe:1521"
+  ENV["DATABASE_URL"] || "oracle-enhanced://scenic_oracle_adapter:scenic_oracle_adapter@localhost/xe:1521"
 )
 
 def find_view(name)
