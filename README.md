@@ -1,4 +1,4 @@
-# scenic-oracle_adapter
+# scenic-oracle_adapter [![Build Status](https://travis-ci.org/cdinger/scenic-oracle_adapter.svg?branch=master)](https://travis-ci.org/cdinger/scenic-oracle_adapter)
 
 An Oracle adapter for Thoughtbot's [scenic](https://github.com/thoughtbot/scenic) rubygem.
 
