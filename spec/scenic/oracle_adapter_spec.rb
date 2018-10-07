@@ -130,16 +130,4 @@ RSpec.describe Scenic::OracleAdapter do
       a.refresh_materialized_view("private_things", concurrently: true)
     end
   end
-
-  it "refreshes a materialized view" do
-    adapter.execute("create table things (id integer, name varchar(50), private char(1))")
-    adapter.execute("insert into things values (1, 'these', 'Y')")
-    adapter.execute("insert into things values (2, 'are', 'N')")
-    adapter.execute("insert into things values (3, 'things', 'Y')")
-    adapter.create_materialized_view("private_things", "select id, name, private from things where private = 'Y'")
-    expect(adapter.connection.select_value("select count(*) from private_things")).to eq(2)
-    adapter.execute("insert into things values (4, 'another', 'Y')")
-    adapter.refresh_materialized_view("private_things")
-    expect(adapter.connection.select_value("select count(*) from private_things")).to eq(3)
-  end
 end
