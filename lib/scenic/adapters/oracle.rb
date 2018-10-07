@@ -39,10 +39,11 @@ module Scenic
         execute("drop materialized view #{quote_table_name(name)}")
       end
 
-      def refresh_materialized_view(name)
+      def refresh_materialized_view(name, concurrently: false)
+        atomic_refresh = concurrently.to_s.upcase
         plsql = <<~EOS
           begin
-            dbms_mview.refresh('#{name}');
+            dbms_mview.refresh('#{name}', method => '?', atomic_refresh => #{atomic_refresh});
           end;
         EOS
         execute(plsql)
