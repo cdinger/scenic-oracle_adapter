@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Scenic
   module Adapters
     class Oracle
@@ -41,11 +43,11 @@ module Scenic
 
       def refresh_materialized_view(name, concurrently: false)
         atomic_refresh = concurrently.to_s.upcase
-        plsql = <<~EOS
+        plsql = <<~EOSQL
           begin
             dbms_mview.refresh('#{name}', method => '?', atomic_refresh => #{atomic_refresh});
           end;
-        EOS
+        EOSQL
         execute(plsql)
       end
 
