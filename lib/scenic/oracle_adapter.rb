@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "active_record"
 require "scenic"
 require "scenic/oracle_adapter/version"
