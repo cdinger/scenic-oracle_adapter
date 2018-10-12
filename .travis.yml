@@ -32,3 +32,10 @@ install:
   - .travis/oracle/install.sh
   - .travis/setup_accounts.sh
   - bundle install
+
+jobs:
+  include:
+    - stage: Static analysis
+      script: bundle exec rubocop lib
+    - stage: Test
+      script: bundle exec rspec
