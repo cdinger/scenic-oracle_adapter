@@ -78,6 +78,40 @@ RSpec.describe Scenic::OracleAdapter do
       expect(view.definition).to eq("select 1 as a, 2 as b from dual")
     end
 
+    context "updates a materialized view with indexes" do
+      before do
+        adapter.create_materialized_view("things", "select 1 as id, 'something' as name from dual")
+        adapter.execute("create unique index things_id on things(id)")
+        adapter.execute("create index things_name on things(name)")
+      end
+
+      it "recreate all indexes" do
+        adapter.update_materialized_view("things", "select 1 as id, 'something' as name, 123 as department from dual")
+
+        expect(select_value("select count(*)
+                             from user_indexes
+                             where index_name = 'THINGS_ID'
+                               and uniqueness = 'UNIQUE'")).to eq(1)
+        expect(select_value("select count(*)
+                             from user_indexes
+                             where index_name = 'THINGS_NAME'
+                               and uniqueness = 'NONUNIQUE'")).to eq(1)
+      end
+
+      it "handles invalidated indexes" do
+        adapter.update_materialized_view("things", "select 1 as id, 123 as department from dual")
+
+        expect(select_value("select count(*)
+                             from user_indexes
+                             where index_name = 'THINGS_ID'
+                               and uniqueness = 'UNIQUE'")).to eq(1)
+        expect(select_value("select count(*)
+                             from user_indexes
+                             where index_name = 'THINGS_NAME'
+                               and uniqueness = 'NONUNIQUE'")).to eq(0)
+      end
+    end
+
     context ".refresh_materialized_view" do
       before do
         adapter.execute("create table things (id integer, name varchar(50), private char(1))")

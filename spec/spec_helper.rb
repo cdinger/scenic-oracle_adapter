@@ -39,6 +39,10 @@ def drop_all_tables
   end
 end
 
+def select_value(sql)
+  ActiveRecord::Base.connection.select_value(sql)
+end
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
