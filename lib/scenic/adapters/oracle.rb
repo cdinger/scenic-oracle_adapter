@@ -48,12 +48,11 @@ module Scenic
 
       def refresh_materialized_view(name, concurrently: false)
         atomic_refresh = concurrently.to_s.upcase
-        plsql = <<~EOSQL
+        execute(<<~EOSQL)
           begin
             dbms_mview.refresh('#{name}', method => '?', atomic_refresh => #{atomic_refresh});
           end;
         EOSQL
-        execute(plsql)
       end
 
       delegate :connection, to: :@connectable
