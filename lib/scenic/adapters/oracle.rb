@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative "oracle/index_reapplication"
+require_relative "oracle/indexes"
+
 module Scenic
   module Adapters
     class Oracle
@@ -33,8 +36,10 @@ module Scenic
       end
 
       def update_materialized_view(name, definition)
-        drop_materialized_view(name)
-        create_materialized_view(name, definition)
+        IndexReapplication.new(connection: connection).on(name) do
+          drop_materialized_view(name)
+          create_materialized_view(name, definition)
+        end
       end
 
       def drop_materialized_view(name)
