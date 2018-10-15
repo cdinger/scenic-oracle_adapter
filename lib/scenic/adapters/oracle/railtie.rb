@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "rails/railtie"
 require "active_record/connection_adapters/oracle_enhanced_adapter"
 
