@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "scenic-oracle_adapter"
   spec.version       = Scenic::OracleAdapter::VERSION
   spec.authors       = ["Chris Dinger"]
-  spec.email         = ["cdinger@gmail.edu"]
+  spec.email         = ["chris@houseofding.com"]
 
   spec.summary       = %q{Oracle adapter for thoughtbot/scenic}
   spec.homepage      = "https://github.com/cdinger/scenic-oracle_adapter"
