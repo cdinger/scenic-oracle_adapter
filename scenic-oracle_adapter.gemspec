@@ -22,13 +22,13 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "scenic", ">= 1.4.0"
-  spec.add_dependency "activerecord-oracle_enhanced-adapter"
-  spec.add_dependency "ruby-oci8"
+  spec.add_dependency "scenic", "~> 1.4.1"
+  spec.add_dependency "activerecord-oracle_enhanced-adapter", ">= 1.5.0"
+  spec.add_dependency "ruby-oci8", "~> 2.2"
 
   spec.add_development_dependency "bundler", "~> 1.16"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "byebug"
-  spec.add_development_dependency "rubocop"
+  spec.add_development_dependency "rubocop", "~> 0"
 end
