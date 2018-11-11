@@ -2,6 +2,7 @@
 
 require_relative "oracle/index_reapplication"
 require_relative "oracle/indexes"
+require_relative "oracle/refresh_dependencies"
 
 module Scenic
   module Adapters
@@ -46,7 +47,9 @@ module Scenic
         execute("drop materialized view #{quote_table_name(name)}")
       end
 
-      def refresh_materialized_view(name, concurrently: false)
+      def refresh_materialized_view(name, concurrently: false, cascade: false)
+        refresh_dependencies_for(name) if cascade
+
         atomic_refresh = concurrently.to_s.upcase
         execute(<<~EOSQL)
           begin
@@ -70,6 +73,10 @@ module Scenic
         select_all("select lower(mview_name) as name, query as definition from user_mviews").map do |view|
           Scenic::View.new(name: view["name"], definition: view["definition"], materialized: true)
         end
+      end
+
+      def refresh_dependencies_for(name)
+        Scenic::Adapters::Oracle::RefreshDependencies.call(name, self, connection)
       end
     end
   end

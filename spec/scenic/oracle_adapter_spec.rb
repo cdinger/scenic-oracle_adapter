@@ -1,3 +1,5 @@
+require "scenic/adapters/oracle/refresh_dependencies"
+
 RSpec.describe Scenic::OracleAdapter do
   context "integration" do
     let(:adapter) { Scenic::Adapters::Oracle.new }
@@ -131,6 +133,54 @@ RSpec.describe Scenic::OracleAdapter do
       it "refreshes a materialized view concurrently" do
         adapter.refresh_materialized_view("private_things", concurrently: true)
         expect(adapter.connection.select_value("select count(*) from private_things")).to eq(3)
+      end
+
+      it "refreshes dependecies in the correct order" do
+        adapter = Scenic::Adapters::Oracle.new
+
+        adapter.create_materialized_view(
+          "first",
+          "SELECT 'hi' AS greeting from dual",
+        )
+
+        adapter.create_materialized_view(
+          "second",
+          "SELECT * from first",
+        )
+
+        adapter.create_materialized_view(
+          "third",
+          "SELECT * from first UNION SELECT * from second",
+        )
+
+        adapter.create_materialized_view(
+          "fourth",
+          "SELECT * from third",
+        )
+
+        expect(adapter).to receive(:refresh_materialized_view).
+          with(:first).ordered
+
+        expect(adapter).to receive(:refresh_materialized_view).
+          with(:second).ordered
+
+        expect(adapter).to receive(:refresh_materialized_view).
+          with(:third).ordered
+
+        Scenic::Adapters::Oracle::RefreshDependencies.call(:fourth, adapter, ActiveRecord::Base.connection)
+      end
+
+      it "does not raise an error when a view has no materialized view dependencies" do
+        adapter = Scenic::Adapters::Oracle.new
+
+        adapter.create_materialized_view(
+          "first",
+          "SELECT 'hi' AS greeting from dual",
+        )
+
+        expect {
+          Scenic::Adapters::Oracle::RefreshDependencies.call(:first, adapter, ActiveRecord::Base.connection)
+        }.not_to raise_error
       end
     end
   end
