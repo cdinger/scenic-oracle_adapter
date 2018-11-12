@@ -23,9 +23,8 @@ module Scenic
 
         def try_index_create(index)
           if valid_index?(index)
-            if connection.execute(index.definition)
-              say "index '#{index.index_name}' on '#{index.object_name}' has been recreated"
-            end
+            connection.execute(index.definition) &&
+              say("index '#{index.index_name}' on '#{index.object_name}' has been recreated")
           else
             say "index '#{index.index_name}' on '#{index.object_name}' is no longer valid and has been dropped."
           end
