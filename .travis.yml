@@ -20,6 +20,7 @@ env:
     - DATABASE_VERSION=11.2.0.1
     - ORACLE_SID=XE
     - DATABASE_NAME=XE
+    - DATABASE_URL="oracle-enhanced://scenic_oracle_adapter:scenic_oracle_adapter@localhost/xe:1521"
 
 before_install:
   - chmod +x .travis/oracle/download.sh

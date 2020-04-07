@@ -1,0 +1,20 @@
+version: '3'
+services:
+  db:
+    image: "container-registry.oracle.com/database/enterprise:12.2.0.1-slim"
+    volumes:
+      - db:/ORCL
+    ports:
+      - "1521:1521"
+  gem:
+    build: .
+    volumes:
+      - .:/app
+    environment:
+      - TERM=dumb
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
+volumes:
+  db:

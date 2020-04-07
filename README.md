@@ -26,13 +26,14 @@ end
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `bin/test` (or `rspec`) to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+While you can use any Oracle instance to run the test suite, it's easiest to use Docker and docker-compose.
 
-By default, the test suite will attempt to connect to a local XE instance (see `spec/spec_helper.rb` for connection details).
+After checking out the repo, start the Oracle instance by running `docker-compose up -d`. After that, you can 
+run `docker-compose exec gem bin/setup` to install dependencies. Then, run `docker-compose exec gem bin/test` (or `rspec`) to run the tests.
+You can also run `docker-compose exec gem bin/console` for an interactive prompt that will allow you to experiment.
+
+By default, the test suite will attempt to connect to a local docker Oracle instance (see `spec/spec_helper.rb` for connection details).
 You can override the database URL by supplying a value to the `DATABASE_URL` environment variable.
-
-If you don't have a test Oracle database available, you can use [oracle-dev-box](https://github.com/cdinger/oracle-dev-box) to
-run an XE instance in Vagrant.
 
 ## Contributing
 

@@ -1,10 +1,6 @@
 require "bundler/setup"
 require "scenic/oracle_adapter"
 
-ActiveRecord::Base.establish_connection(
-  ENV["DATABASE_URL"] || "oracle-enhanced://scenic_oracle_adapter:scenic_oracle_adapter@localhost/xe:1521"
-)
-
 def find_view(name)
   adapter.views.find { |view| view.name == name && !view.materialized }
 end
@@ -52,5 +48,29 @@ RSpec.configure do |config|
 
   config.expect_with :rspec do |c|
     c.syntax = :expect
+  end
+
+  config.before(:suite) do
+    if ENV["DATABASE_URL"]
+      ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
+    else
+      # Default to Docker credentials
+      ActiveRecord::Base.establish_connection("oracle-enhanced://sys:Oradoc_db1@db/orclpdb1.localdomain?privilege=SYSDBA")
+
+      unless ActiveRecord::Base.connection.select_value("select username from all_users where username = 'SCENIC_ORACLE_ADAPTER'")
+        create_user_sql = <<~EOSQL
+          CREATE USER scenic_oracle_adapter IDENTIFIED BY scenic_oracle_adapter
+        EOSQL
+
+        grant_sql = <<~EOSQL
+          GRANT unlimited tablespace, create session, create table, create view, create materialized view, create database link TO scenic_oracle_adapter
+        EOSQL
+
+        ActiveRecord::Base.connection.execute(create_user_sql)
+        ActiveRecord::Base.connection.execute(grant_sql)
+      end
+
+      ActiveRecord::Base.establish_connection("oracle-enhanced://scenic_oracle_adapter:scenic_oracle_adapter@db/orclpdb1.localdomain")
+    end
   end
 end
