@@ -60,6 +60,15 @@ RSpec.describe Scenic::OracleAdapter do
       view = find_mview("blah")
       expect(view.materialized).to be true
       expect(view.definition).to eq("select 1 as a from dual")
+      expect(select_value("select count(*) from blah")).to eq(1)
+    end
+
+    it "creates an unpopulated materialized view" do
+      adapter.create_materialized_view("blah", "select 1 as a from dual", no_data: true)
+      view = find_mview("blah")
+      expect(view.materialized).to be true
+      expect(view.definition).to eq("select 1 as a from dual")
+      expect(select_value("select count(*) from blah")).to eq(0)
     end
 
     it "drops a materialized view" do

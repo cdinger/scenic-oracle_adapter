@@ -32,8 +32,8 @@ module Scenic
         create_view(name, definition)
       end
 
-      def create_materialized_view(name, definition)
-        execute("create materialized view #{quote_table_name(name)} as #{definition}")
+      def create_materialized_view(name, definition, no_data: false)
+        execute("create materialized view #{quote_table_name(name)} #{'build deferred' if no_data} as #{definition}")
       end
 
       def update_materialized_view(name, definition)
