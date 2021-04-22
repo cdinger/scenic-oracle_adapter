@@ -4,9 +4,9 @@ sudo: required
 language: ruby
 cache: bundler
 rvm:
-  - 2.5
   - 2.6
   - 2.7
+  - 3.0
 
 env:
   global:
