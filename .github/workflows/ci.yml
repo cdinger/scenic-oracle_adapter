@@ -15,11 +15,5 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-    - name: Start containers
-      run: docker-compose up -d
-    - name: Wait for Oracle to become available
-      run: sleep 120
-    - name: Check containers
-      run: docker-compose ps
     - name: Run tests
-      run: docker-compose exec -T gem rspec
+      run: docker-compose run gem rspec

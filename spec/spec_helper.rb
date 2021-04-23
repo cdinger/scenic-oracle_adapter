@@ -55,7 +55,19 @@ RSpec.configure do |config|
       ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
     else
       # Default to Docker credentials
-      ActiveRecord::Base.establish_connection("oracle-enhanced://sys:Oradoc_db1@db/orclpdb1.localdomain?privilege=SYSDBA")
+      waited = 0
+      interval_in_seconds = 10
+      while !ActiveRecord::Base.connected?
+        begin
+          ActiveRecord::Base.establish_connection("oracle-enhanced://sys:Oradoc_db1@db/orclpdb1.localdomain?privilege=SYSDBA")
+          ActiveRecord::Base.connection.select_value("select 1 from dual")
+          puts "Connected!"
+        rescue OCIError
+          print "\rWaiting for database to become available (#{waited}s)... "
+          waited += interval_in_seconds
+          sleep interval_in_seconds
+        end
+      end
 
       unless ActiveRecord::Base.connection.select_value("select username from all_users where username = 'SCENIC_ORACLE_ADAPTER'")
         create_user_sql = <<~EOSQL
