@@ -1,4 +1,4 @@
-# scenic-oracle_adapter [![Build Status](https://travis-ci.org/cdinger/scenic-oracle_adapter.svg?branch=master)](https://travis-ci.org/cdinger/scenic-oracle_adapter)
+# scenic-oracle_adapter [![Build Status](https://github.com/cdinger/scenic-oracle_adapter/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/cdinger/scenic-oracle_adapter/actions/workflows/ci.yml?query=branch%3Amaster)
 
 An Oracle adapter for the [scenic](https://github.com/scenic-views/scenic) rubygem.
 
