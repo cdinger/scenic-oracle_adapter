@@ -8,7 +8,11 @@ module Scenic
     class Oracle
       class Railtie < Rails::Railtie
         ActiveSupport.on_load(:active_record) do
-          ActiveRecord::ConnectionAdapters::OracleEnhanced::SchemaDumper.prepend Scenic::SchemaDumper
+          if defined?(ActiveRecord::ConnectionAdapters::OracleEnhancedSchemaDumper)
+            ActiveRecord::ConnectionAdapters::OracleEnhancedSchemaDumper.prepend Scenic::SchemaDumper
+          else
+            ActiveRecord::ConnectionAdapters::OracleEnhanced::SchemaDumper.prepend Scenic::SchemaDumper
+          end
         end
       end
     end
