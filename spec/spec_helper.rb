@@ -57,9 +57,9 @@ RSpec.configure do |config|
       # Default to Docker credentials
       waited = 0
       interval_in_seconds = 10
-      while !ActiveRecord::Base.connected?
+      until ActiveRecord::Base.connected?
         begin
-          ActiveRecord::Base.establish_connection("oracle-enhanced://sys:Oradoc_db1@db/orclpdb1.localdomain?privilege=SYSDBA")
+          ActiveRecord::Base.establish_connection("oracle-enhanced://sys:thisisonlyusedlocally@db/xepdb1?privilege=SYSDBA")
           ActiveRecord::Base.connection.select_value("select 1 from dual")
           puts "Connected!"
         rescue OCIError
@@ -82,7 +82,7 @@ RSpec.configure do |config|
         ActiveRecord::Base.connection.execute(grant_sql)
       end
 
-      ActiveRecord::Base.establish_connection("oracle-enhanced://scenic_oracle_adapter:scenic_oracle_adapter@db/orclpdb1.localdomain")
+      ActiveRecord::Base.establish_connection("oracle-enhanced://scenic_oracle_adapter:scenic_oracle_adapter@db/xepdb1")
     end
   end
 end
