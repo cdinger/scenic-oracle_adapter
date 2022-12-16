@@ -1,4 +1,4 @@
-FROM ruby:latest
+FROM --platform=linux/amd64 ruby:latest
 
 RUN curl -sLO 'https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-basic-linux.x64-19.6.0.0.0dbru.zip' && \
   curl -sLO 'https://download.oracle.com/otn_software/linux/instantclient/19600/instantclient-sdk-linux.x64-19.6.0.0.0dbru.zip' && \
