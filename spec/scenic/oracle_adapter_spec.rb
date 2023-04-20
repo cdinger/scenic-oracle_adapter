@@ -89,6 +89,19 @@ RSpec.describe Scenic::OracleAdapter do
       expect(view.definition).to eq("select 1 as a, 2 as b from dual")
     end
 
+  it "updates an unpopulated materialized view" do
+      adapter.create_materialized_view("blah", "select 1 as a from dual", no_data: true)
+      view = find_mview("blah")
+      expect(view.materialized).to be true
+      expect(view.definition).to eq("select 1 as a from dual")
+      expect(select_value("select count(*) from blah")).to eq(0)
+      adapter.update_materialized_view("blah", "select 1 as a, 2 as b from dual", no_data: true)
+      view = find_mview("blah")
+      expect(view.materialized).to be true
+      expect(view.definition).to eq("select 1 as a, 2 as b from dual")
+      expect(select_value("select count(*) from blah")).to eq(0)
+    end
+
     context "updates a materialized view with indexes" do
       before do
         adapter.create_materialized_view("things", "select 1 as id, 'something' as name from dual")
