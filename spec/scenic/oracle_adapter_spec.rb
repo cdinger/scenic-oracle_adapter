@@ -205,6 +205,26 @@ RSpec.describe Scenic::OracleAdapter do
         }.not_to raise_error
       end
     end
+
+    describe "#populated?" do
+      it "returns false if a materialized view is not populated" do
+        adapter.execute(<<~SQL)
+          create materialized view greetings build deferred as
+          select 'hi' as greeting from dual
+        SQL
+
+        expect(adapter.populated?("greetings")).to be false
+      end
+
+      it "returns true if a materialized view is populated" do
+        adapter.execute(<<~SQL)
+          create materialized view greetings as
+          select 'hi' as greeting from dual
+        SQL
+
+        expect(adapter.populated?("greetings")).to be true
+      end
+    end
   end
 
   context "mocks" do

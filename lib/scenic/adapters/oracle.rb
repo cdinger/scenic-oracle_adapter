@@ -58,8 +58,12 @@ module Scenic
         EOSQL
       end
 
+      def populated?(name)
+        !select_value("select last_refresh_date from user_mviews where mview_name = '#{name.upcase}'").nil?
+      end
+
       delegate :connection, to: :@connectable
-      delegate :select_all, :execute, :quote_table_name, to: :connection
+      delegate :select_all, :select_value, :execute, :quote_table_name, to: :connection
 
       private
 
