@@ -32,14 +32,14 @@ module Scenic
         create_view(name, definition)
       end
 
-      def create_materialized_view(name, definition, no_data: false)
-        execute("create materialized view #{quote_table_name(name)} #{'build deferred' if no_data} as #{definition}")
+      def create_materialized_view(name, definition, no_data: false, parallel: false)
+        execute("create materialized view #{quote_table_name(name)} #{'parallel' if parallel} #{'build deferred' if no_data} as #{definition}")
       end
 
-      def update_materialized_view(name, definition, no_data: false)
+      def update_materialized_view(name, definition, no_data: false, parallel: false)
         IndexReapplication.new(connection: connection).on(name) do
           drop_materialized_view(name)
-          create_materialized_view(name, definition, no_data: no_data)
+          create_materialized_view(name, definition, no_data: no_data, parallel: parallel)
         end
       end
 
