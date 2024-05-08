@@ -26,12 +26,12 @@ end
 
 ## Development
 
-While you can use any Oracle instance for development, it's easiest to use Docker and docker-compose.
+While you can use any Oracle instance for development, it's easiest to use Docker and docker compose.
 
-Note that the Oracle container takes up to two minutes to start and become available. If you're doing active development you probably want to start the containers in detached mode: `docker-compose up -d`. This starts everything in the background and allows you to use `docker-compose exec` to run commands on the already running containers:
+Note that the Oracle container takes up to two minutes to start and become available. If you're doing active development you probably want to start the containers in detached mode: `docker-compose up -d`. This starts everything in the background and allows you to use `docker compose exec` to run commands on the already running containers:
 
-- Run specs: `docker-compose exec gem bin/test`
-- Open a console: `docker-compose exec gem bin/console`
+- Run specs: `docker compose exec gem bin/test`
+- Open a console: `docker compose exec gem bin/console`
 
 ## Tests
 
