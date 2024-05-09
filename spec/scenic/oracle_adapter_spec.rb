@@ -234,7 +234,7 @@ RSpec.describe Scenic::OracleAdapter do
           connectable = ActiveRecord::Base
           a = Scenic::Adapters::Oracle.new(connectable)
           expected = <<~EOS
-            create materialized view parallel_test parallel as select 1 as id from dual
+            create materialized view "PARALLEL_TEST" parallel as select 1 as id from dual
           EOS
 
           expect(connectable.connection).to receive(:execute).with(expected)
@@ -248,7 +248,7 @@ RSpec.describe Scenic::OracleAdapter do
           connectable = ActiveRecord::Base
           a = Scenic::Adapters::Oracle.new(connectable)
           expected = <<~EOS
-            create materialized view parallel_test as select 1 as id from dual
+            create materialized view "PARALLEL_TEST" as select 1 as id from dual
           EOS
 
           expect(connectable.connection).to receive(:execute).with(expected)
@@ -260,7 +260,7 @@ RSpec.describe Scenic::OracleAdapter do
           connectable = ActiveRecord::Base
           a = Scenic::Adapters::Oracle.new(connectable)
           expected = <<~EOS
-            create materialized view parallel_test as select 1 as id from dual
+            create materialized view "PARALLEL_TEST" as select 1 as id from dual
           EOS
 
           expect(connectable.connection).to receive(:execute).with(expected)
