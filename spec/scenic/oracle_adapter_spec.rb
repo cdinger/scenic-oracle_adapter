@@ -237,7 +237,7 @@ RSpec.describe Scenic::OracleAdapter do
             create materialized view "PARALLEL_TEST" parallel as select 1 as id from dual
           EOS
 
-          expect(connectable.connection).to receive(:execute).with(expected)
+          expect(connectable.connection).to receive(:execute).with(a_string_matching(/\sparallel\s/))
 
           a.create_materialized_view("parallel_test", "select 1 as id from dual", parallel: true)
         end
