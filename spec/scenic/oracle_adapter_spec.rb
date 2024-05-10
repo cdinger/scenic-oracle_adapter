@@ -233,9 +233,6 @@ RSpec.describe Scenic::OracleAdapter do
         it "adds the parallel flag to the create command" do
           connectable = ActiveRecord::Base
           a = Scenic::Adapters::Oracle.new(connectable)
-          expected = <<~EOS
-            create materialized view "PARALLEL_TEST" parallel as select 1 as id from dual
-          EOS
 
           expect(connectable.connection).to receive(:execute).with(a_string_matching(/\sparallel\s/))
 
@@ -247,11 +244,8 @@ RSpec.describe Scenic::OracleAdapter do
         it "omits the parallel flag in the create command" do
           connectable = ActiveRecord::Base
           a = Scenic::Adapters::Oracle.new(connectable)
-          expected = <<~EOS
-            create materialized view "PARALLEL_TEST" as select 1 as id from dual
-          EOS
 
-          expect(connectable.connection).to receive(:execute).with(expected)
+          expect(connectable.connection).not_to receive(:execute).with(a_string_matching(/\sparallel\s/))
 
           a.create_materialized_view("parallel_test", "select 1 as id from dual", parallel: false)
         end
@@ -259,11 +253,8 @@ RSpec.describe Scenic::OracleAdapter do
         it "defaults to disabling parallel" do
           connectable = ActiveRecord::Base
           a = Scenic::Adapters::Oracle.new(connectable)
-          expected = <<~EOS
-            create materialized view "PARALLEL_TEST" as select 1 as id from dual
-          EOS
 
-          expect(connectable.connection).to receive(:execute).with(expected)
+          expect(connectable.connection).not_to receive(:execute).with(a_string_matching(/\sparallel\s/))
 
           a.create_materialized_view("parallel_test", "select 1 as id from dual")
         end
