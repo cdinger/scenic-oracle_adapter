@@ -3,6 +3,7 @@
 require_relative "oracle/index_reapplication"
 require_relative "oracle/indexes"
 require_relative "oracle/refresh_dependencies"
+require "tsortable_hash"
 
 module Scenic
   module Adapters
@@ -12,7 +13,9 @@ module Scenic
       end
 
       def views
-        all_views + all_mviews
+        all_view_objects.sort_by do |view_object|
+          dependency_order.index(view_object.name)
+        end
       end
 
       def create_view(name, definition)
@@ -67,6 +70,27 @@ module Scenic
 
       private
 
+      def view_dependencies
+        select_all(<<~EOSQL)
+          select lower(uo.object_name) as name, lower(ud.referenced_name) as dependency
+          from user_objects uo
+            left join user_dependencies ud on uo.object_name = ud.name
+              and ud.referenced_type in ('VIEW', 'MATERIALIZED VIEW')
+          where uo.object_type in ('VIEW', 'MATERIALIZED VIEW')
+        EOSQL
+      end
+
+      def dependency_order
+        views_hash = TSortableHash.new
+
+        view_dependencies.each do |view_data|
+          views_hash[view_data["name"]] ||= []
+          views_hash[view_data["name"]] << view_data["dependency"] unless view_data["dependency"].nil?
+        end
+
+        views_hash.tsort
+      end
+
       def all_views
         select_all("select lower(view_name) name, text definition from user_views").map do |view|
           Scenic::View.new(name: view["name"], definition: view["definition"], materialized: false)
@@ -77,6 +101,10 @@ module Scenic
         select_all("select lower(mview_name) as name, query as definition from user_mviews").map do |view|
           Scenic::View.new(name: view["name"], definition: view["definition"], materialized: true)
         end
+      end
+
+      def all_view_objects
+        all_views + all_mviews
       end
 
       def refresh_dependencies_for(name)

@@ -1,6 +1,10 @@
 require "bundler/setup"
 require "scenic/oracle_adapter"
 
+Scenic.configure do |config|
+  config.database = Scenic::Adapters::Oracle.new
+end
+
 def find_view(name)
   adapter.views.find { |view| view.name == name && !view.materialized }
 end

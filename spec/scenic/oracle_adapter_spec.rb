@@ -1,4 +1,5 @@
 require "scenic/adapters/oracle/refresh_dependencies"
+require "active_support/core_ext/string/indent"
 
 RSpec.describe Scenic::OracleAdapter do
   context "integration" do
@@ -224,6 +225,23 @@ RSpec.describe Scenic::OracleAdapter do
 
         expect(adapter.populated?("greetings")).to be true
       end
+    end
+
+    it "sorts dependency order in dumped schema" do
+      adapter.execute("create table things (id integer)")
+      adapter.execute("insert into things values (1)")
+      adapter.create_view("apples", "select * from things")
+      adapter.create_view("bananas", "select * from apples")
+      adapter.create_view("kiwis", "select apples.id from apples join bananas on apples.id = bananas.id")
+      adapter.create_materialized_view("watermelons", "select * from kiwis")
+      stream = StringIO.new
+
+      ActiveRecord::SchemaDumper.dump(adapter.connection, stream)
+      views = stream.string.lines.grep(/create_view/).map do |view_line|
+        view_line.match('create_view "(?<name>.*)"')[:name]
+      end
+
+      expect(views).to eq(%w[apples bananas kiwis watermelons])
     end
   end
 
