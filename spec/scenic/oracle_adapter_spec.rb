@@ -243,6 +243,17 @@ RSpec.describe Scenic::OracleAdapter do
 
       expect(views).to eq(%w[apples bananas kiwis watermelons])
     end
+
+    # Demonstrates https://github.com/cdinger/scenic-oracle_adapter/issues/18
+    it "excludes external dependencies" do
+      adapter.create_materialized_view("depends_on_external_views", <<~EOS)
+        select coalesce(user_scheduler_job_run_details.log_date, systimestamp) as log_time
+        from user_scheduler_jobs
+          left join user_scheduler_job_run_details on user_scheduler_jobs.job_name = user_scheduler_job_run_details.job_name
+      EOS
+
+      expect { adapter.views }.to_not raise_error
+    end
   end
 
   context "mocks" do
