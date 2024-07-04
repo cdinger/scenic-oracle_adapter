@@ -76,6 +76,8 @@ module Scenic
           from user_objects uo
             left join user_dependencies ud on uo.object_name = ud.name
               and ud.referenced_type in ('VIEW', 'MATERIALIZED VIEW')
+              and ud.referenced_name in (select object_name from user_objects)
+              and ud.referenced_owner = user
           where uo.object_type in ('VIEW', 'MATERIALIZED VIEW')
         EOSQL
       end
