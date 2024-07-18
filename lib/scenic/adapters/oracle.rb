@@ -74,8 +74,17 @@ module Scenic
         select_all(<<~EOSQL)
           select lower(uo.object_name) as name, lower(ud.referenced_name) as dependency
           from user_objects uo
-            left join user_dependencies ud on uo.object_name = ud.name
-              and ud.referenced_type in ('VIEW', 'MATERIALIZED VIEW')
+            left join user_dependencies ud on
+              uo.object_name = ud.name
+              and (
+                (ud.referenced_type in ('VIEW', 'MATERIALIZED VIEW'))
+                OR
+                (
+                  ud.referenced_type IN ('TABLE')
+                  AND
+                  ud.referenced_name in (select mview_name from user_mviews)
+                )
+              )
               and ud.referenced_name in (select object_name from user_objects)
               and ud.referenced_owner = user
           where uo.object_type in ('VIEW', 'MATERIALIZED VIEW')
