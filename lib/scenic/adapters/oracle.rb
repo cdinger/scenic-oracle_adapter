@@ -14,7 +14,7 @@ module Scenic
 
       def views
         all_view_objects.sort_by do |view_object|
-          dependency_order.index(view_object.name)
+          dependency_order.index(view_object.name) || all_view_objects.size
         end
       end
 

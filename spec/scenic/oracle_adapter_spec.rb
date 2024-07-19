@@ -244,6 +244,18 @@ RSpec.describe Scenic::OracleAdapter do
       expect(views).to eq(%w[apples bananas kiwis watermelons])
     end
 
+    it "doesn't exclude dumped views if they're missing from tsorted views" do
+      allow(adapter).to receive(:all_view_objects).and_return([
+        Scenic::View.new(name: "a", definition: "", materialized: false),
+        Scenic::View.new(name: "b", definition: "", materialized: false),
+        Scenic::View.new(name: "c", definition: "", materialized: false)
+      ])
+
+      allow(adapter).to receive(:dependency_order).and_return(["c", "b"])
+
+      expect(adapter.views.map(&:name)).to eq(%w[c b a])
+    end
+
     # Demonstrates https://github.com/cdinger/scenic-oracle_adapter/issues/18
     it "excludes external dependencies" do
       adapter.create_materialized_view("depends_on_external_views", <<~EOS)
