@@ -17,7 +17,7 @@ module Scenic
       end
 
       def create_view(name, definition)
-        execute("create view #{quote_table_name(name)} as #{definition}")
+        execute("create view #{quote_table_name(name)} as #{trimmed_definition(definition)}")
       end
 
       def drop_view(name)
@@ -25,7 +25,7 @@ module Scenic
       end
 
       def replace_view(name, definition)
-        execute("create or replace view #{quote_table_name(name)} as #{definition}")
+        execute("create or replace view #{quote_table_name(name)} as #{trimmed_definition(definition)}")
       end
 
       def update_view(name, definition)
@@ -34,7 +34,7 @@ module Scenic
       end
 
       def create_materialized_view(name, definition, no_data: false)
-        execute("create materialized view #{quote_table_name(name)} #{'build deferred' if no_data} as #{definition}")
+        execute("create materialized view #{quote_table_name(name)} #{'build deferred' if no_data} as #{trimmed_definition(definition)}")
       end
 
       def update_materialized_view(name, definition, no_data: false)
@@ -135,6 +135,10 @@ module Scenic
 
       def refresh_dependencies_for(name)
         Scenic::Adapters::Oracle::RefreshDependencies.call(name, self, connection)
+      end
+
+      def trimmed_definition(sql)
+        sql.strip.sub(/;$/, "").strip
       end
     end
   end

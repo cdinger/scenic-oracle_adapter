@@ -280,6 +280,17 @@ RSpec.describe Scenic::OracleAdapter do
 
       expect { adapter.views }.to_not raise_error
     end
+
+    it "strips newlines and trailing semicolons from view definitions" do
+      adapter.create_view("a", <<~EOS)
+        select 1 as id
+        from dual
+        ;
+
+      EOS
+
+      expect(adapter.views.first.definition).to eq("select 1 as id\nfrom dual")
+    end
   end
 
   context "mocks" do
