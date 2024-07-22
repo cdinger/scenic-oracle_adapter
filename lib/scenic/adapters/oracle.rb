@@ -13,9 +13,7 @@ module Scenic
       end
 
       def views
-        all_view_objects.sort_by do |view_object|
-          dependency_order.index(view_object.name) || all_view_objects.size
-        end
+        sorted_dependency_views + sorted_missing_dependency_views
       end
 
       def create_view(name, definition)
@@ -88,6 +86,7 @@ module Scenic
               and ud.referenced_name in (select object_name from user_objects)
               and ud.referenced_owner = user
           where uo.object_type in ('VIEW', 'MATERIALIZED VIEW')
+          order by lower(uo.object_name), lower(ud.referenced_name)
         EOSQL
       end
 
@@ -100,6 +99,22 @@ module Scenic
         end
 
         views_hash.tsort
+      end
+
+      def sorted_dependency_views
+        all_view_objects.filter do |view|
+          dependency_order.include?(view.name)
+        end.sort_by do |view|
+          dependency_order.index(view.name)
+        end
+      end
+
+      def sorted_missing_dependency_views
+        all_view_objects.filter do |view|
+          dependency_order.exclude?(view.name)
+        end.sort_by do |view|
+          view.name
+        end
       end
 
       def all_views

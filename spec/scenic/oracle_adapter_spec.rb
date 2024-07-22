@@ -227,24 +227,15 @@ RSpec.describe Scenic::OracleAdapter do
       end
     end
 
-    it "sorts dependency order in dumped schema" do
-      adapter.execute("create table things (id integer)")
-      adapter.execute("insert into things values (1)")
-      adapter.create_view("apples", "select * from things")
-      adapter.create_view("bananas", "select * from apples")
-      adapter.create_view("kiwis", "select apples.id from apples join bananas on apples.id = bananas.id")
-      adapter.create_materialized_view("watermelons", "select * from kiwis")
-      stream = StringIO.new
+    it "views are sorted by dependency order" do
+      adapter.create_view("a", "select 1 as id from dual")
+      adapter.create_view("b", "select * from a")
+      adapter.create_view("c", "select a.id from a join b on a.id = b.id")
 
-      ActiveRecord::SchemaDumper.dump(adapter.connection, stream)
-      views = stream.string.lines.grep(/create_view/).map do |view_line|
-        view_line.match('create_view "(?<name>.*)"')[:name]
-      end
-
-      expect(views).to eq(%w[apples bananas kiwis watermelons])
+      expect(adapter.views.map(&:name)).to eq(%w[a b c])
     end
 
-    it "doesn't exclude dumped views if they're missing from tsorted views" do
+    it "doesn't exclude views if they're missing from tsorted views" do
       allow(adapter).to receive(:all_view_objects).and_return([
         Scenic::View.new(name: "a", definition: "", materialized: false),
         Scenic::View.new(name: "b", definition: "", materialized: false),
@@ -254,6 +245,29 @@ RSpec.describe Scenic::OracleAdapter do
       allow(adapter).to receive(:dependency_order).and_return(["c", "b"])
 
       expect(adapter.views.map(&:name)).to eq(%w[c b a])
+    end
+
+    it "deterministically order dependency views" do
+      adapter.create_view("a", "select 1 as id from dual")
+      adapter.create_view("d", "select * from a")
+      adapter.create_view("c", "select * from a")
+      adapter.create_view("b", "select * from a")
+
+      expect(adapter.views.map(&:name)).to eq(%w[a b c d])
+    end
+
+    it "deterministically order missing dependency views" do
+      allow(adapter).to receive(:all_view_objects).and_return([
+        Scenic::View.new(name: "a", definition: "", materialized: false),
+        Scenic::View.new(name: "b", definition: "", materialized: false),
+        Scenic::View.new(name: "c", definition: "", materialized: false),
+        Scenic::View.new(name: "e", definition: "", materialized: false),
+        Scenic::View.new(name: "d", definition: "", materialized: false)
+      ])
+
+      allow(adapter).to receive(:dependency_order).and_return(["a", "b", "c"])
+
+      expect(adapter.views.map(&:name)).to eq(%w[a b c d e])
     end
 
     # Demonstrates https://github.com/cdinger/scenic-oracle_adapter/issues/18
