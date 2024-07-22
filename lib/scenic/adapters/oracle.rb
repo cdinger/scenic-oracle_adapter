@@ -69,7 +69,7 @@ module Scenic
       private
 
       def view_dependencies
-        select_all(<<~EOSQL)
+        @view_dependencies ||= select_all(<<~EOSQL)
           select lower(uo.object_name) as name, lower(ud.referenced_name) as dependency
           from user_objects uo
             left join user_dependencies ud on
