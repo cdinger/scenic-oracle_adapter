@@ -11,8 +11,6 @@ services:
     build: .
     volumes:
       - .:/app
-    environment:
-      - TERM=dumb
     stdin_open: true
     tty: true
     depends_on:
