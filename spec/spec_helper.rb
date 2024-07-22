@@ -43,6 +43,25 @@ def select_value(sql)
   ActiveRecord::Base.connection.select_value(sql)
 end
 
+def database_container_ready?
+  ActiveRecord::Base.establish_connection("oracle-enhanced://sys:thisisonlyusedlocally@db/orclpdb1?privilege=SYSDBA")
+  control_file = ActiveRecord::Base.connection.select_value("select controlfile_type from v$database")
+  control_file == "CURRENT"
+rescue OCIError
+  false
+end
+
+def wait_for_database_container
+  waited = 0
+  interval_in_seconds = 10
+
+  until database_container_ready?
+    print "\rWaiting for database to become available (#{waited}s)... "
+    sleep interval_in_seconds
+    waited += interval_in_seconds
+  end
+end
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
@@ -59,19 +78,7 @@ RSpec.configure do |config|
       ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
     else
       # Default to Docker credentials
-      waited = 0
-      interval_in_seconds = 10
-      until ActiveRecord::Base.connected?
-        begin
-          ActiveRecord::Base.establish_connection("oracle-enhanced://sys:thisisonlyusedlocally@db/orclpdb1?privilege=SYSDBA")
-          ActiveRecord::Base.connection.select_value("select 1 from dual")
-          puts "Connected!"
-        rescue OCIError
-          print "\rWaiting for database to become available (#{waited}s)... "
-          waited += interval_in_seconds
-          sleep interval_in_seconds
-        end
-      end
+      wait_for_database_container
 
       unless ActiveRecord::Base.connection.select_value("select username from all_users where username = 'SCENIC_ORACLE_ADAPTER'")
         create_user_sql = <<~EOSQL
