@@ -56,6 +56,45 @@ RSpec.describe Scenic::OracleAdapter do
       expect(find_view("blah").definition).to eq("select 1 as a, 2 as b from dual")
     end
 
+    context "when sql has indented lines" do
+      let(:indented_sql) do
+        <<-EOSQL
+        select
+          1 as a,
+          2 as b
+        from
+          dual
+        ;
+        EOSQL
+      end
+      let(:expected_definition) {"select\n1 as a,\n2 as b\nfrom\ndual"}
+
+      it "stores view definitions without internal indentation" do
+        adapter.create_view("indented_view", indented_sql)
+
+        view = find_view("indented_view")
+
+        expect(view.definition).to eq(expected_definition)
+      end
+
+      it "prevents cumulative indentation on multiple schema dumps" do
+        adapter.create_view("indented_view", indented_sql)
+        expect(view_exists?("indented_view")).to be true
+
+        3.times do
+          current_definition = find_view("indented_view").definition
+          faulty_indented_sql = current_definition.split("\n")
+                                                  .map { |line| "  #{line}" }
+                                                  .join("\n")
+                                                  .strip
+          adapter.update_view("indented_view", faulty_indented_sql)
+        end
+
+        updated_view = find_view("indented_view")
+        expect(updated_view.definition).to eq(expected_definition)
+      end
+    end
+
     it "creates a materialized view" do
       adapter.create_materialized_view("blah", "select 1 as a from dual")
       view = find_mview("blah")

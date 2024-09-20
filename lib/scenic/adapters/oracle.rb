@@ -138,7 +138,9 @@ module Scenic
       end
 
       def trimmed_definition(sql)
-        sql.strip.sub(/;$/, "").strip
+        sql.sub(/\s*;\s*$/, "")
+          .lines.map { |line| line.strip }
+          .join("\n")
       end
     end
   end
