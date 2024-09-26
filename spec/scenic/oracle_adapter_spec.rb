@@ -1,5 +1,4 @@
 require "scenic/adapters/oracle/refresh_dependencies"
-require "active_support/core_ext/string/indent"
 
 RSpec.describe Scenic::OracleAdapter do
   context "integration" do
@@ -54,6 +53,62 @@ RSpec.describe Scenic::OracleAdapter do
       expect(view_exists?("blah")).to be true
       adapter.update_view("blah", "select 1 as a, 2 as b from dual")
       expect(find_view("blah").definition).to eq("select 1 as a, 2 as b from dual")
+    end
+
+    context "schema dumps" do
+      before do
+        Scenic.load
+        FileUtils.mkdir(File.expand_path("./tmp"))
+        FileUtils.touch([first_schema_file_path, second_schema_file_path])
+      end
+
+      after do
+        FileUtils.remove_dir(File.expand_path("./tmp"))
+        drop_all_views
+      end
+
+      let(:first_schema_file_path) { File.expand_path("./tmp/first_schema.rb") }
+      let(:second_schema_file_path) { File.expand_path("./tmp/second_schema.rb") }
+
+      it "creates a consistant schema.rb file" do
+        adapter.create_view("multiline_left_justified", <<~EOSQL)
+          select
+          1 as a
+          from
+          dual
+        EOSQL
+
+        adapter.create_view("multiline_internal_indented", <<~EOSQL)
+          SELECT
+              1 AS fancy_a,
+              CASE
+                  WHEN 1=1 THEN 'Y'
+                  ELSE 'N'
+              END AS fancy_b
+          FROM
+              dual
+        EOSQL
+
+        adapter.create_view("multi_newline_and_semicolon", <<~EOSQL)
+          select
+            3 as fancy_c
+          from
+            dual
+
+          ;
+
+        EOSQL
+
+        dump_schema(first_schema_file_path)
+        drop_all_views
+        load(first_schema_file_path)
+        dump_schema(second_schema_file_path)
+
+        first_file_contents = File.read(first_schema_file_path)
+        second_file_contents = File.read(second_schema_file_path)
+
+        expect(first_file_contents).to eq(second_file_contents)
+      end
     end
 
     it "creates a materialized view" do

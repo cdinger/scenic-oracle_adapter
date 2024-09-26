@@ -62,6 +62,14 @@ def wait_for_database_container
   end
 end
 
+def dump_schema(file_path)
+  dumper = ActiveRecord::Base.connection.create_schema_dumper({table_name_prefix: ActiveRecord::Base.table_name_prefix, table_name_suffix: ActiveRecord::Base.table_name_suffix})
+
+  File.open(file_path, "w:utf-8") do |file|
+    dumper.dump(file)
+  end
+end
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"
