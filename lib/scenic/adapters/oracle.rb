@@ -3,6 +3,8 @@
 require_relative "oracle/index_reapplication"
 require_relative "oracle/indexes"
 require_relative "oracle/refresh_dependencies"
+require_relative "oracle/view"
+require "active_support/core_ext/string/strip"
 require "tsortable_hash"
 
 module Scenic
@@ -119,13 +121,13 @@ module Scenic
 
       def all_views
         select_all("select lower(view_name) name, text definition from user_views").map do |view|
-          Scenic::View.new(name: view["name"], definition: view["definition"], materialized: false)
+          Scenic::Adapters::Oracle::View.new(name: view["name"], definition: view["definition"], materialized: false)
         end
       end
 
       def all_mviews
         select_all("select lower(mview_name) as name, query as definition from user_mviews").map do |view|
-          Scenic::View.new(name: view["name"], definition: view["definition"], materialized: true)
+          Scenic::Adapters::Oracle::View.new(name: view["name"], definition: view["definition"], materialized: true)
         end
       end
 
@@ -138,7 +140,7 @@ module Scenic
       end
 
       def trimmed_definition(sql)
-        sql.strip.sub(/;$/, "").strip
+        sql.rstrip.sub(/;$/, "").rstrip.strip_heredoc
       end
     end
   end
