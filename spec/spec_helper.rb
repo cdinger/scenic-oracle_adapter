@@ -95,5 +95,12 @@ RSpec.configure do |config|
 
       ActiveRecord::Base.establish_connection("oracle-enhanced://scenic_oracle_adapter:scenic_oracle_adapter@db/orclpdb1")
     end
+
+    @active_record_verbosity = ActiveRecord::Migration.verbose
+    ActiveRecord::Migration.verbose = false
+  end
+
+  config.after(:suite) do
+    ActiveRecord::Migration.verbose = @active_record_verbosity
   end
 end
