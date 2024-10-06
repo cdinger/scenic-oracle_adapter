@@ -13,4 +13,4 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Run tests
-      run: docker-compose run gem rspec
+      run: docker compose run gem rspec
