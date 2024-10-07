@@ -1,4 +1,5 @@
 require "scenic/adapters/oracle/refresh_dependencies"
+require "active_support/core_ext/string/indent"
 
 RSpec.describe Scenic::OracleAdapter do
   context "integration" do
