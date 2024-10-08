@@ -3,6 +3,7 @@
 require_relative "oracle/index_reapplication"
 require_relative "oracle/indexes"
 require_relative "oracle/refresh_dependencies"
+require "active_support/core_ext/string/strip"
 require "tsortable_hash"
 
 module Scenic
@@ -138,7 +139,7 @@ module Scenic
       end
 
       def trimmed_definition(sql)
-        sql.strip.sub(/;$/, "").strip
+        sql.rstrip.sub(/;$/, "").rstrip.strip_heredoc
       end
     end
   end
