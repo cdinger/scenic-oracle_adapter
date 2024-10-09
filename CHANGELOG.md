@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.3.5 - Oct 9, 2024
+
+- Silence ActiveRecord output while running specs. Clean green dots! (@eeklund, @dlagerro)
+- Fix growing indentation issue in schema.rb after `schema:dump`/`schema:load` (@eeklund, @dlagerro)
+
 ## v1.3.4 - Jul 22, 2024
 
 - Fixes a syntax issue in pre-3.1 rubies
