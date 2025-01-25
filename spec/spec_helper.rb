@@ -44,7 +44,7 @@ def select_value(sql)
 end
 
 def database_container_ready?
-  ActiveRecord::Base.establish_connection("oracle-enhanced://sys:thisisonlyusedlocally@db/orclpdb1?privilege=SYSDBA")
+  ActiveRecord::Base.establish_connection("oracle#{ Scenic::Adapters::Oracle.uses_oracle_enhanced_adapter? ? "-enhanced" : "" }://sys:thisisonlyusedlocally@db/orclpdb1?privilege=SYSDBA")
   control_file = ActiveRecord::Base.connection.select_value("select controlfile_type from v$database")
   control_file == "CURRENT"
 rescue OCIError
@@ -101,7 +101,7 @@ RSpec.configure do |config|
         ActiveRecord::Base.connection.execute(grant_sql)
       end
 
-      ActiveRecord::Base.establish_connection("oracle-enhanced://scenic_oracle_adapter:scenic_oracle_adapter@db/orclpdb1")
+      ActiveRecord::Base.establish_connection("oracle#{Scenic::Adapters::Oracle.uses_oracle_enhanced_adapter? ? "-enhanced" : "" }://scenic_oracle_adapter:scenic_oracle_adapter@db/orclpdb1")
     end
 
     @active_record_verbosity = ActiveRecord::Migration.verbose

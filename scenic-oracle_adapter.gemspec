@@ -29,5 +29,4 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rubocop", ">= 0.49.0"
   spec.add_development_dependency "ruby-oci8", "~> 2.2"
-  spec.add_development_dependency "activerecord-oracle_enhanced-adapter", ">= 1.5.0"
 end

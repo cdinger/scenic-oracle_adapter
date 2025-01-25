@@ -67,6 +67,18 @@ module Scenic
       delegate :connection, to: :@connectable
       delegate :select_all, :select_value, :execute, :quote_table_name, to: :connection
 
+      def self.file_exists_in_load_path?(filename)
+        $LOAD_PATH.any? { |path| File.exist?(File.join(path, filename)) }
+      end
+
+      def self.uses_oracle_enhanced_adapter?
+        file_exists_in_load_path?("active_record/connection_adapters/oracle_enhanced_adapter.rb")
+      end
+
+      def self.uses_oracle_adapter?
+        file_exists_in_load_path?("active_record/connection_adapters/oracle_adapter.rb")
+      end
+
       private
 
       def view_dependencies
