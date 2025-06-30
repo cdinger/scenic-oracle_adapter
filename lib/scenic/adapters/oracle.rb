@@ -9,6 +9,8 @@ require "tsortable_hash"
 module Scenic
   module Adapters
     class Oracle
+      class SideBySideNotSupportedError < StandardError; end
+
       def initialize(connectable = ActiveRecord::Base)
         @connectable = connectable
       end
@@ -38,10 +40,14 @@ module Scenic
         execute("create materialized view #{quote_table_name(name)} #{'build deferred' if no_data} as #{trimmed_definition(definition)}")
       end
 
-      def update_materialized_view(name, definition, no_data: false)
-        IndexReapplication.new(connection: connection).on(name) do
-          drop_materialized_view(name)
-          create_materialized_view(name, definition, no_data: no_data)
+      def update_materialized_view(name, definition, no_data: false, side_by_side: false)
+        if side_by_side
+          raise SideBySideNotSupportedError.new("Renaming materialized view is not supported in Oracle")
+        else
+          IndexReapplication.new(connection: connection).on(name) do
+            drop_materialized_view(name)
+            create_materialized_view(name, definition, no_data: no_data)
+          end
         end
       end
 

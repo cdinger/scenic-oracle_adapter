@@ -146,7 +146,14 @@ RSpec.describe Scenic::OracleAdapter do
       expect(view.definition).to eq("select 1 as a, 2 as b from dual")
     end
 
-  it "updates an unpopulated materialized view" do
+    it "raises and exception when attempting to used side by side" do
+      adapter.create_materialized_view("hi", "select 'hi' as greeting from dual")
+      expect {
+        adapter.update_materialized_view("hi", "select 'ahoy' as greeting from dual", side_by_side: true)
+      }.to raise_error(Scenic::Adapters::Oracle::SideBySideNotSupportedError)
+    end
+
+    it "updates an unpopulated materialized view" do
       adapter.create_materialized_view("blah", "select 1 as a from dual", no_data: true)
       view = find_mview("blah")
       expect(view.materialized).to be true
