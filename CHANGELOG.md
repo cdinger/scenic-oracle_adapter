@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.4.0 - June 30, 2025
+
+- Use scenic 1.9.0
+- Reduce churn in schema.rb by topologically sorting dumped views
+- Raise SideBySideNotSupportedError when Scenic's side_by_side mode is attempted
+
 ## v1.3.5 - Oct 9, 2024
 
 - Silence ActiveRecord output while running specs. Clean green dots! (@eeklund, @dlagerro)
