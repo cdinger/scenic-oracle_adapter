@@ -66,6 +66,7 @@ RSpec.describe Scenic::OracleAdapter do
       after do
         FileUtils.remove_dir(File.expand_path("./tmp"))
         drop_all_views
+        drop_all_mviews
       end
 
       let(:first_schema_file_path) { File.expand_path("./tmp/first_schema.rb") }
@@ -109,6 +110,25 @@ RSpec.describe Scenic::OracleAdapter do
         second_file_contents = File.read(second_schema_file_path)
 
         expect(first_file_contents).to eq(second_file_contents)
+      end
+
+      it "dumps no_data information" do
+        schema_path = File.expand_path("./tmp/schema.rb")
+        adapter.create_materialized_view("empties", "select 123 as id from dual", no_data: true)
+        dump_schema(schema_path)
+        schema_contents = File.read(schema_path)
+
+        expect(schema_contents).to match("create_view \"empties\", materialized: { no_data: true }")
+      end
+
+      it "loads no_data information from schema.rb" do
+        schema_path = File.expand_path("./tmp/schema.rb")
+        adapter.create_materialized_view("empties", "select 123 as id from dual", no_data: true)
+        dump_schema(schema_path)
+        drop_all_mviews
+        load(schema_path)
+
+        expect(adapter.views.first.no_data).to be true
       end
     end
 
