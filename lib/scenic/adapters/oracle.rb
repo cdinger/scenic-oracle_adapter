@@ -143,8 +143,8 @@ module Scenic
       end
 
       def all_mviews
-        select_all("select lower(mview_name) as name, query as definition from user_mviews").map do |view|
-          Scenic::View.new(name: view["name"], definition: view["definition"], materialized: true)
+        select_all("select lower(mview_name) as name, query as definition, build_mode from user_mviews").map do |view|
+          Scenic::View.new(name: view["name"], definition: view["definition"], materialized: true, no_data: view["build_mode"] == "DEFERRED")
         end
       end
 
