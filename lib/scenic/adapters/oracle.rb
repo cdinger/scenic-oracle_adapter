@@ -47,6 +47,7 @@ module Scenic
       end
 
       def drop_materialized_view(name)
+        execute("truncate table #{quote_table_name(name)}")
         execute("drop materialized view #{quote_table_name(name)}")
       end
 
