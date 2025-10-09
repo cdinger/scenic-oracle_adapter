@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.5.0 - October 8, 2025
+
+- Inlcude `no_data` information to materialized view definitions in schema.rb
+
 ## v1.4.0 - June 30, 2025
 
 - Use scenic 1.9.0
